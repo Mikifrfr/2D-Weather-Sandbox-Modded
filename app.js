@@ -1113,9 +1113,9 @@ async function mainScript(initialBaseTex, initialWaterTex, initialWallTex, initi
       this.#instrumentPanel = new InstrumentPanel();
       airplaneMode = true;
       this.#camFollow = true;
-      let M = 400 * 1000;                                                                                                           // mass: 400 tons
-      let L = 30.0;                                                                                                                 // effective length in meters
-      let I = 1 / 12 * M * L * L;                                                                                                   // moment of inertial
+      let M = 800 * 1000;                                                                                                           // mass: 400 tons
+      let L = 60.0;                                                                                                                 // effective length in meters
+      let I = 2 / 24 * M * L * L;                                                                                                   // moment of inertial
       this.phys = new PhysicsObject(M, I, mouseXinSim * sim_res_x * cellHeight, mouseYinSim * sim_res_y * cellHeight, -100.0, 0.0); // 400 tons
       this.phys.angle = 5.0 * degToRad;
       this.throttle = 0.4;                                                                                                          // %

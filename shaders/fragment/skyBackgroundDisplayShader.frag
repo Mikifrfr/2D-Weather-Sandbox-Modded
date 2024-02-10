@@ -101,7 +101,7 @@ void main()
 
 
   const float timePerIteration = 0.00008;          // app.js line 118
-  const float speed_kmh = 250.0;
+  const float speed_kmh = 5000.0;
   float speed_kmpi = speed_kmh * timePerIteration; // km per iteration
   float areaWidth = 100.0;                         // km
 

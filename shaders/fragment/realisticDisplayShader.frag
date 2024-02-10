@@ -199,9 +199,11 @@ void main()
         float urbanTexCoordX = mod(fragCoord.x, resolution.x) * texAspect / urbanTexHeightNorm;
         float urbanTexCoordY = heightAboveGround / urbanTexHeightNorm;
 
-        // urbanTexCoordY += map_rangeC(float(wallX0Ym[VEGETATION]), 127., 50., 0., 1.0); // building height
-
+    
         urbanTexCoordY = 1.0 - urbanTexCoordY;
+
+        //urbanTexCoordY += map_rangeC(float(wallX0Ym[VEGETATION]), 127., 50., 0., 1.0); // building height
+
 
         vec4 texCol = surfaceTexture(URBAN, vec2(urbanTexCoordX, urbanTexCoordY));
         if (texCol.a > 0.5) { // if not transparent

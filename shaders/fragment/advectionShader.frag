@@ -346,10 +346,10 @@ void main()
         if (wall[TYPE] == WALLTYPE_LAND && wall[VERT_DISTANCE] == 0) // if land surface, set ground on fire
           wall[TYPE] = WALLTYPE_FIRE;                                // start fire when plane hits the ground
       } else {                                                       // air, create FIRE BALL!
-        base[PRESSURE] += 0.05;                                      // pressure wave
-        base[TEMPERATURE] = CtoK(50.0);                              // heat
-        water[TOTAL] += 1.;                                          // moisture
-        water[SMOKE] += 10.;                                         // smoke
+        base[PRESSURE] += 0.50;                                      // pressure wave
+        base[TEMPERATURE] = CtoK(4000.0);                              // heat
+        water[TOTAL] += 7.;                                          // moisture
+        water[SMOKE] += 70.;                                         // smoke
       }
     }
   }

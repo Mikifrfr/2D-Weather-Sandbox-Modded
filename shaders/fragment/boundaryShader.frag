@@ -119,7 +119,7 @@ void main()
 
     base[VY] += gravityForce;
 
-    // base.x += sin(texCoord.x * PI * 2.0 + iterNum * 0.000005) * (1. - texCoord.y) * 0.00015; // phantom force to simulate high and low pressure areas
+     //base.x += sin(texCoord.x * PI * 2.0 + iterNum * 0.000005) * (1. - texCoord.y) * 0.000015; // phantom force to simulate high and low pressure areas
 
     float snowCover = 0.;
 
