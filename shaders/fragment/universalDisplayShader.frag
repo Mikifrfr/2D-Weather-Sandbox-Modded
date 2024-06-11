@@ -29,8 +29,8 @@ void main()
 
   float val = cell[quantityIndex] * dispMultiplier;
 
-  if (wall[1] == 0) {  // is wall
-    switch (wall[0]) { // wall type
+  if (false /* wall[1] == 0 */) { // is wall
+    switch (wall[0]) {            // wall type
     case 0:
       fragmentColor = vec4(0, 0, 0, 1);
       break;
@@ -49,5 +49,5 @@ void main()
   } else {
     fragmentColor = vec4(1.0 + val, 1.0 + val, 1.0, 1.0);
   }
-  drawCursor();
+  drawCursor(cursor, view);
 }

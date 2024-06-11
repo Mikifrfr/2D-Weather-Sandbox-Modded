@@ -1,5 +1,5 @@
-precision highp int;        // needed for chrome 97, older versions didn't need this specified
-precision highp isampler2D; // Not sure if the WebGL standard changed
+precision highp int;
+precision highp isampler2D;
 
 #define PI 3.1415926535897932384626433832795
 #define rad2deg 57.2958
@@ -11,7 +11,10 @@ precision highp isampler2D; // Not sure if the WebGL standard changed
 
 #define maxWaterTemp 40.0
 
-#define fullWhiteSnowHeight 10.0 // snow height at witch full whiteness is displayed and max albedo is achieved
+
+#define fullGreenSoilMoisture 50.0 // level of soil moisture where vegetation reaches the greenest color
+
+#define fullWhiteSnowHeight 10.0   // snow height at witch full whiteness is displayed and max albedo is achieved
 #define snowMassToHeight 0.05
 
 #define snowMeltRate 0.000015
@@ -50,23 +53,32 @@ precision highp isampler2D; // Not sure if the WebGL standard changed
 #define WALLTYPE_WATER 2 // lake / sea
 #define WALLTYPE_FIRE 3
 #define WALLTYPE_URBAN 4
+#define WALLTYPE_VOLCANO 5
 
 #define DISTANCE 1      // manhattan distance to nearest wall                   0 to 127
 #define VERT_DISTANCE 2 // height above/below ground. Surface = 0               -127 to 127
 #define VEGETATION 3    // vegetation 0 to 127     grass from 0 to 50, trees from 51 to 127
 
 
-//  lighting texture: RGBA32F
+//  light texture: RGBA32F
 #define SUNLIGHT 0    // sunlight                                             0 to 1.0
 #define NET_HEATING 1 // net heating effect of IR + sun absorbed by smoke
 #define IR_DOWN 2     // IR coming down                                       >= 0
 #define IR_UP 3       // IR going  up                                         >= 0
 
+// Precipitation mass:
+#define WATER 0
+#define ICE 1
+
 // Precipitation feedback
 #define MASS 0
 #define HEAT 1
 #define VAPOR 2
-// #define SNOW 3
+// 3 not used
+
+// Precipitation deposition
+#define RAIN_DEPOSITION 0
+#define SNOW_DEPOSITION 1
 
 
 // Universal Functions
@@ -123,6 +135,8 @@ float rand2d(vec2 co)
 // Temperature Functions
 
 float potentialToRealT(float potential) { return potential - texCoord.y * dryLapse; }
+
+float potentialToRealT(float potential, float texCoordY) { return potential - texCoordY * dryLapse; }
 
 float realToPotentialT(float real) { return real + texCoord.y * dryLapse; }
 
@@ -332,4 +346,18 @@ float rand2(vec2 s)
 {
   // return hash( x + hashi(y) ); // clean 2D hash
   return hash2(int(s.x * 379071.) + int(s.y * 756398.) << 16); // 2D hash (should be ok too )
+}
+
+float volcanoHeight(vec2 pos)
+{
+  vec2 p = (pos - 0.5) * 10.0;
+  float volcano = max(1.0 - length(p), 0.0);
+  float noise = func2D(pos, 0.0);
+  return max(volcano, noise * 0.5);
+}
+
+float volcanoHeat(vec2 pos)
+{
+  float height = volcanoHeight(pos);
+  return height * 100.0;
 }

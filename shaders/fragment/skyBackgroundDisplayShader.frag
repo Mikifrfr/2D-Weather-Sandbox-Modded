@@ -12,29 +12,19 @@ uniform vec2 aspectRatios;
 
 uniform sampler2D lightTex;
 uniform sampler2D planeTex;
+// uniform sampler2D precipFeedbackTex;
 
-uniform float exposure;
 uniform float iterNum;
+
+uniform float simHeight;
 
 uniform vec3 planePos;
 
 out vec4 fragmentColor;
 
+#include "commonDisplay.glsl"
+
 float map_range(float value, float min1, float max1, float min2, float max2) { return min2 + (value - min1) * (max2 - min2) / (max1 - min1); }
-
-vec3 hsv2rgb(vec3 c)
-{
-  vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-  vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-  return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-}
-
-float realMod(float a, float b)
-{
-  // proper modulo to handle negative numbers
-  return mod(mod(a, b) + b, b);
-}
-
 
 vec4 displayA380(vec2 pos, float angle)
 {
@@ -44,7 +34,7 @@ vec4 displayA380(vec2 pos, float angle)
   // planeTexCoord.x = realMod(planeTexCoord.x, 1.0);
   planeTexCoord.y -= pos.y;
 
-  const float simHeight = 12000.0;
+  const float simHeight = 12000.0; // TODO: Should be uniform!
   float cellHeight = simHeight / resolution.y;
 
   float scaleMult = 60.0 / cellHeight; // 6000
@@ -95,27 +85,19 @@ void main()
 
   float val = pow(map_range(texCoord.y, 0., 3.2, 1.0, 0.1), 5.0); // pow 3 map 1.0 to 0.3
 
-
-  val = pow(val, 1. / 2.2); // gamma correction
   vec3 mixedCol = hsv2rgb(vec3(hue, sat, val));
 
-
-  const float timePerIteration = 0.00008;          // app.js line 118
-  const float speed_kmh = 5000.0;
-  float speed_kmpi = speed_kmh * timePerIteration; // km per iteration
-  float areaWidth = 100.0;                         // km
-
-                                                   // vec2 planePos = vec2(0.5 - iterNum * speed_kmpi / areaWidth, 0.1); // 0.5 - iterNum * speed_kmpi / areaWidth
-
-  // float angle = iterNum * 0.01;
 
   vec4 A380Col = displayA380(planePos.xy, planePos.z);
 
   mixedCol *= 1.0 - A380Col.a;
-  mixedCol += A380Col.rgb;
+  mixedCol += A380Col.rgb * A380Col.a;
 
+  mixedCol = pow(mixedCol, vec3(2.0)); // gamma correction
 
-  // if (texCoord.y > 2.99 && texCoord.x > 0.5) mixedCol.r = 1.;// show top of simulation area
+  vec3 finalColor = mixedCol * (light + minShadowLight);
 
-  fragmentColor = vec4(mixedCol * (light * 1.0 + 0.3) * exposure, 1.0);
+  // finalColor.r += texture(precipFeedbackTex, texCoord)[0] * 100.0; // check precipitation feedback
+
+  fragmentColor = vec4(finalColor, 1.0);
 }

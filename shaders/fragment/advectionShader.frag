@@ -24,7 +24,7 @@ uniform vec4 userInputValues; // xpos    Ypos     intensity     Brush Size
 #define BRUSH_SIZE 3
 
 uniform vec2 userInputMove;  // moveX  moveY
-uniform int userInputType;   // 0 = nothing 	1 = temp ...`
+uniform int userInputType;   // 0 = nothing 	1 = temp ...
 
 uniform vec4 airplaneValues; // xpos   Ypos   throttle   fire
 
@@ -149,11 +149,12 @@ void main()
 
     ivec4 wallX0Yp = texture(wallTex, texCoordX0Yp);
 
+    // prevent negative numbers
+    wall[VEGETATION] = max(wall[VEGETATION], 0);
+    water[SOIL_MOISTURE] = max(water[SOIL_MOISTURE], 0.0);
+
     if (wallX0Yp[DISTANCE] != 0) { // cell above is not wall, surface layer
 
-      // prevent negative numbers
-      wall[VEGETATION] = max(wall[VEGETATION], 0);
-      water[SOIL_MOISTURE] = max(water[SOIL_MOISTURE], 0.0);
 
       vec4 baseX0Yp = texture(baseTex, texCoordX0Yp);
       vec4 waterX0Yp = texture(waterTex, texCoordX0Yp);
@@ -241,30 +242,30 @@ void main()
                                        // wall[VEGETATION] = 0; // No vegetation
           setWall = true;
           break;
-        case 13:
+        case 13:                                                                                                     // set fire
           if (wall[DISTANCE] == 0 && wall[TYPE] == WALLTYPE_LAND && texture(wallTex, texCoordX0Yp)[DISTANCE] != 0) { // if land wall and no wall above
             wall[TYPE] = WALLTYPE_FIRE;
             setWall = true;
           }
           break;
-        case 14:
+        case 14:                                                                                                     // set urban
           if (wall[DISTANCE] == 0 && wall[TYPE] == WALLTYPE_LAND && texture(wallTex, texCoordX0Yp)[DISTANCE] != 0) { // if land wall and no wall above
             wall[TYPE] = WALLTYPE_URBAN;
           }
           break;
 
 
-        case 20:
-          if (wall[DISTANCE] == 0 && wall[TYPE] == WALLTYPE_LAND && texture(wallTex, texCoordX0Yp)[DISTANCE] != 0) { // if land wall and no wall above
+        case 20:                                                                                                      // add soil moisture
+          if (wall[DISTANCE] == 0 && wall[TYPE] != WALLTYPE_WATER && texture(wallTex, texCoordX0Yp)[DISTANCE] != 0) { // if land wall and no wall above
             water[SOIL_MOISTURE] += userInputValues[INTENSITY] * 10.0;
           }
           break;
-        case 21:
+        case 21:                                                                                                                                       // add snow
           if (wall[DISTANCE] == 0 && (wall[TYPE] == WALLTYPE_LAND || wall[TYPE] == WALLTYPE_URBAN) && texture(wallTex, texCoordX0Yp)[DISTANCE] != 0) { // if land wall and no wall above
             water[SNOW] += userInputValues[INTENSITY] * 0.5;
           }
           break;
-        case 22:
+        case 22:                                                                                                                                                                      // add vegetation
           if (wall[DISTANCE] == 0 && (wall[TYPE] == WALLTYPE_LAND || wall[TYPE] == WALLTYPE_FIRE || wall[TYPE] == WALLTYPE_URBAN) && texture(wallTex, texCoordX0Yp)[DISTANCE] != 0) { // if land wall and no wall above
             wall[VEGETATION] += 1;                                                                                                                                                    // add vegetation
           }
@@ -273,11 +274,13 @@ void main()
 
         if (setWall) {
           wall[DISTANCE] = 0;         // set wall
-          water = vec4(0.0);
           base[TEMPERATURE] = 1000.0; // indicate this is wall and no snow cooling
+                                      // water = vec4(0.0);
 
-
-          if (wall[TYPE] == WALLTYPE_WATER) { // water surface
+          if (wall[TYPE] == WALLTYPE_LAND) {
+            water[SOIL_MOISTURE] = 25.0;
+            // wall[VEGETATION] = 100;
+          } else if (wall[TYPE] == WALLTYPE_WATER) { // water surface
             base[TEMPERATURE] = waterTemperature;
           }
         }
@@ -290,7 +293,7 @@ void main()
           } else if (userInputType == 14) {   // urban
             if (wall[TYPE] == WALLTYPE_URBAN) // remove buildings
               wall[TYPE] = WALLTYPE_LAND;
-          } else if (userInputType == 20) {   // moisture
+          } else if (userInputType == 20) {   // remove moisture
             water[SOIL_MOISTURE] += userInputValues[INTENSITY] * 10.0;
           } else if (userInputType == 21) {
             water[SNOW] += userInputValues[INTENSITY] * 0.5; // remove snow
@@ -346,10 +349,10 @@ void main()
         if (wall[TYPE] == WALLTYPE_LAND && wall[VERT_DISTANCE] == 0) // if land surface, set ground on fire
           wall[TYPE] = WALLTYPE_FIRE;                                // start fire when plane hits the ground
       } else {                                                       // air, create FIRE BALL!
-        base[PRESSURE] += 0.50;                                      // pressure wave
-        base[TEMPERATURE] = CtoK(4000.0);                              // heat
-        water[TOTAL] += 7.;                                          // moisture
-        water[SMOKE] += 70.;                                         // smoke
+        base[PRESSURE] += 0.05;                                      // pressure wave
+        base[TEMPERATURE] = CtoK(50.0);                              // heat
+        water[TOTAL] += 1.;                                          // moisture
+        water[SMOKE] += 10.;                                         // smoke
       }
     }
   }
