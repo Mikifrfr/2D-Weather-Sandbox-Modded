@@ -2,6 +2,13 @@
 
 ## 🚨 **CRITICAL BUGS - IMMEDIATE FIXES NEEDED**
 
+### Recent Actions
+- [x] **Atmospheric Physics Reversion** - Reverted problematic atmospheric physics enhancements
+  - **Issue**: Enhanced pressure system caused global pressurization, NaN values, and simulation instability
+  - **Action**: Hard reset to commit ca70778 (stable TODO system state)
+  - **Status**: ✅ REVERTED - Back to stable simulation state
+  - **Note**: Future atmospheric physics improvements need more careful testing and gradual implementation
+
 ### Performance Issues
 - [ ] **Mobile Precipitation Bug** - Precipitation doesn't work on all mobile devices
   - **Issue**: WebGL context limitations on some mobile browsers
