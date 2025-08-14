@@ -91,6 +91,19 @@ export const CONFIG = {
     PRECIPITATION_ENABLED: true,
   },
 
+  // Surface Albedo Settings
+  SURFACE: {
+    ALBEDO_SNOW: 0.85,        // Fresh snow (very high reflection)
+    ALBEDO_SNOW_FOREST: 0.30, // Snow in forest (lower due to dark trees)
+    ALBEDO_FOREST: 0.10,      // Dense forest (low reflection)
+    ALBEDO_DRYSOIL: 0.30,     // Desert sand/dry soil
+    ALBEDO_WETSOIL: 0.15,     // Wet soil (darker)
+    ALBEDO_URBAN: 0.08,       // Urban areas (low reflection)
+    ALBEDO_INDUSTRIAL: 0.08,  // Industrial areas
+    ALBEDO_RUNWAY: 0.04,      // Asphalt (very low reflection)
+    ALBEDO_WATER: 0.05,       // Water bodies (very low reflection)
+  },
+
   // File Paths
   PATHS: {
     SHADERS: 'shaders/',

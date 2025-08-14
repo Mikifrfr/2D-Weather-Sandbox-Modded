@@ -1,0 +1,3 @@
+[33m4de9663[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32m2.0[m[33m, [m[1;31m2dwsbm/2.0[m[33m)[m CRITICAL FIX: NaN values bug - Added division-by-zero protection and NaN checks to prevent simulation instability
+[33mc35bce5[m CRITICAL FIX: Global pressurization bug - Reduced pressure generation terms to prevent world-wide pressurization
+[33meab20ca[m Fix Pressure System Inconsistency bug - Enhanced atmospheric physics with realistic pressure simulation

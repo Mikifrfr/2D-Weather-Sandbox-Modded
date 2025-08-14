@@ -28,12 +28,69 @@ uniform float IR_rate;
 uniform float greenhouseGases;
 uniform float waterGreenHouseEffect;
 
+// Surface Albedo Uniforms
+uniform float albedoSnow;
+uniform float albedoSnowForest;
+uniform float albedoForest;
+uniform float albedoDrySoil;
+uniform float albedoWetSoil;
+uniform float albedoUrban;
+uniform float albedoIndustrial;
+uniform float albedoRunway;
+uniform float albedoWater;
+
 layout(location = 0) out vec4 light;
 layout(location = 1) out vec4 reflectedLight;
 
 uniform float dryLapse;
 
 #include "common.glsl"
+
+// Calculate surface albedo based on surface type and conditions
+float calculateSurfaceAlbedo(ivec4 wall, vec4 water) {
+  float baseAlbedo = 0.0;
+  
+  // Base albedo from surface type
+  switch (wall[TYPE]) {
+    case WALLTYPE_WATER:
+      baseAlbedo = albedoWater;
+      break;
+    case WALLTYPE_URBAN:
+      baseAlbedo = albedoUrban;
+      break;
+    case WALLTYPE_INDUSTRIAL:
+      baseAlbedo = albedoIndustrial;
+      break;
+    case WALLTYPE_RUNWAY:
+      baseAlbedo = albedoRunway;
+      break;
+    case WALLTYPE_LAND:
+    default:
+      // Land albedo depends on vegetation and soil moisture
+      float vegetationFactor = min(float(wall[VEGETATION]) / 50.0, 1.0);
+      float soilMoisture = min(water[SOIL_MOISTURE] / 20.0, 1.0);
+      
+      // Interpolate between wet soil, dry soil, and forest based on vegetation
+      float soilAlbedo = mix(albedoDrySoil, albedoWetSoil, soilMoisture);
+      baseAlbedo = mix(soilAlbedo, albedoForest, vegetationFactor);
+      break;
+  }
+  
+  // Snow albedo modification - snow significantly increases albedo
+  float snowHeight = water[SNOW];
+  if (snowHeight > 0.1) {
+    float snowCover = min(snowHeight / fullWhiteSnowHeight, 1.0);
+    float vegetationFactor = min(float(wall[VEGETATION]) / 50.0, 1.0);
+    
+    // Snow albedo depends on vegetation underneath
+    float snowAlbedo = mix(albedoSnow, albedoSnowForest, vegetationFactor);
+    
+    // Blend between base albedo and snow albedo based on snow coverage
+    baseAlbedo = mix(baseAlbedo, snowAlbedo, snowCover);
+  }
+  
+  return clamp(baseAlbedo, 0.0, 1.0);
+}
 
 void main()
 {
@@ -90,6 +147,22 @@ void main()
       float IR_up;
 
       if (wall[VERT_DISTANCE] == 1) { // 1 above surface
+        
+        // SURFACE ALBEDO CALCULATION - Calculate realistic solar reflection
+        ivec4 surfaceWall = texture(wallTex, texCoordX0Ym); // Sample surface properties below
+        vec4 surfaceWater = texture(waterTex, texCoordX0Ym);
+        
+        float surfaceAlbedo = calculateSurfaceAlbedo(surfaceWall, surfaceWater);
+        
+        // Calculate solar reflection based on albedo and solar angle
+        float solarReflection = sunlight * surfaceAlbedo;
+        
+        // Add realistic solar reflection (proportional to albedo)
+        reflectedLight.rgb += sunlightColor * solarReflection;
+        
+        // Absorb the remaining solar radiation for heating
+        float solarAbsorption = sunlight * (1.0 - surfaceAlbedo);
+        net_heating += solarAbsorption * lightHeatingConst;
 
         switch (wall[TYPE]) {
         case WALLTYPE_RUNWAY:

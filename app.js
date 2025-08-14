@@ -879,6 +879,17 @@ const guiControls_default = {
   // Atmospheric Physics
   coriolisStrength : 1.0, // Strength of Coriolis effect (0-2)
   pressureGradientStrength : 1.0, // Strength of pressure gradient forces (0-2)
+  
+  // Surface Albedo Settings
+  albedoSnow : 0.85,        // Fresh snow albedo
+  albedoSnowForest : 0.30,  // Snow in forest albedo
+  albedoForest : 0.10,      // Dense forest albedo
+  albedoDrySoil : 0.30,     // Dry soil/sand albedo
+  albedoWetSoil : 0.15,     // Wet soil albedo
+  albedoUrban : 0.08,       // Urban area albedo
+  albedoIndustrial : 0.08,  // Industrial area albedo
+  albedoRunway : 0.04,      // Asphalt/runway albedo
+  albedoWater : 0.05,       // Water body albedo
 
   inactiveDroplets : 0,
   aboveZeroThreshold : 1.0, // PRECIPITATION
@@ -3770,6 +3781,58 @@ async function mainScript(initialBaseTex, initialWaterTex, initialWallTex, initi
       })
       .name('IR Multiplier');
 
+    // Surface Albedo Controls
+    var albedo_folder = radiation_folder.addFolder('Surface Albedo');
+    
+    albedo_folder.add(guiControls, 'albedoSnow', 0.0, 1.0, 0.01)
+      .onChange(function() {
+        gl.useProgram(lightingProgram);
+        gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoSnow'), guiControls.albedoSnow);
+      })
+      .name('Snow Albedo');
+      
+    albedo_folder.add(guiControls, 'albedoSnowForest', 0.0, 1.0, 0.01)
+      .onChange(function() {
+        gl.useProgram(lightingProgram);
+        gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoSnowForest'), guiControls.albedoSnowForest);
+      })
+      .name('Snow Forest Albedo');
+      
+    albedo_folder.add(guiControls, 'albedoForest', 0.0, 1.0, 0.01)
+      .onChange(function() {
+        gl.useProgram(lightingProgram);
+        gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoForest'), guiControls.albedoForest);
+      })
+      .name('Forest Albedo');
+      
+    albedo_folder.add(guiControls, 'albedoDrySoil', 0.0, 1.0, 0.01)
+      .onChange(function() {
+        gl.useProgram(lightingProgram);
+        gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoDrySoil'), guiControls.albedoDrySoil);
+      })
+      .name('Dry Soil Albedo');
+      
+    albedo_folder.add(guiControls, 'albedoWetSoil', 0.0, 1.0, 0.01)
+      .onChange(function() {
+        gl.useProgram(lightingProgram);
+        gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoWetSoil'), guiControls.albedoWetSoil);
+      })
+      .name('Wet Soil Albedo');
+      
+    albedo_folder.add(guiControls, 'albedoUrban', 0.0, 1.0, 0.01)
+      .onChange(function() {
+        gl.useProgram(lightingProgram);
+        gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoUrban'), guiControls.albedoUrban);
+      })
+      .name('Urban Albedo');
+      
+    albedo_folder.add(guiControls, 'albedoWater', 0.0, 1.0, 0.01)
+      .onChange(function() {
+        gl.useProgram(lightingProgram);
+        gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoWater'), guiControls.albedoWater);
+      })
+      .name('Water Albedo');
+
     var water_folder = datGui.addFolder('Water');
 
     water_folder.add(guiControls, 'waterTemperature', 0.0, 40.0, 0.1)
@@ -5720,6 +5783,17 @@ async function mainScript(initialBaseTex, initialWaterTex, initialWallTex, initi
   gl.uniform1i(gl.getUniformLocation(lightingProgram, 'wallTex'), 2);
   gl.uniform1i(gl.getUniformLocation(lightingProgram, 'lightTex'), 3);
   gl.uniform1f(gl.getUniformLocation(lightingProgram, 'dryLapse'), dryLapse);
+  
+  // Surface Albedo Uniforms
+  gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoSnow'), guiControls.albedoSnow);
+  gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoSnowForest'), guiControls.albedoSnowForest);
+  gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoForest'), guiControls.albedoForest);
+  gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoDrySoil'), guiControls.albedoDrySoil);
+  gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoWetSoil'), guiControls.albedoWetSoil);
+  gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoUrban'), guiControls.albedoUrban);
+  gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoIndustrial'), guiControls.albedoIndustrial);
+  gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoRunway'), guiControls.albedoRunway);
+  gl.uniform1f(gl.getUniformLocation(lightingProgram, 'albedoWater'), guiControls.albedoWater);
 
   // Display programs:
   gl.useProgram(temperatureDisplayProgram);
